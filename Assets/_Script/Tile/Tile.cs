@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Tile : MonoBehaviour
@@ -24,8 +25,12 @@ public class Tile : MonoBehaviour
         this.gridPos = newGridPos;
     }
 
+    public Vector2Int GridPos => gridPos;
+    public int Type => type;
+
     private void OnMouseDown()
     {
+        GameManager.Instance.OnTileClicked(this);
         Debug.Log($"Tile clicked at grid position: {gridPos}, type: {type}");   
     }
 }
