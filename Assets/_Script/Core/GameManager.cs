@@ -1,9 +1,14 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
+
+    public event EventHandler OnTileSelected;
+    public event EventHandler OnMatchSuccess;
+    public event EventHandler OnMatchFailure;
 
     [SerializeField] private GridManager gridManager;
     [SerializeField] private MatchPathfinder matchPathfinder;
@@ -24,6 +29,7 @@ public class GameManager : MonoBehaviour
 
     public void OnTileClicked(Tile clicked)
     {
+        OnTileSelected?.Invoke(this, EventArgs.Empty);
         if (firstSelected == null)
         {
             firstSelected = clicked;
@@ -53,6 +59,8 @@ public class GameManager : MonoBehaviour
             gridManager.RemoveTile(firstSelected);
             gridManager.RemoveTile(clicked);
 
+            OnMatchSuccess?.Invoke(this, EventArgs.Empty);
+
             // Nếu hết cặp → shuffle đảm bảo còn đường
             if (!matchPathfinder.HasAnyValidPair())
             {
@@ -62,6 +70,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            OnMatchFailure?.Invoke(this, EventArgs.Empty);
             Debug.Log("Không nối được");
             // Nếu không nối được thì bỏ chọn tile thứ hai
             clicked.SetSelected(false);
