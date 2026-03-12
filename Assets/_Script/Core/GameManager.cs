@@ -14,14 +14,20 @@ public class GameManager : MonoBehaviour
     [Header("References")]
     [SerializeField] private MatchPathfinder matchPathfinder;
     [SerializeField] private PathRenderer pathRenderer;
+    [SerializeField] private SpriteRenderer backgroundRenderer;
 
-    [Header("Gameplay Settings")]
+    [Header("Level Config")]
+    [SerializeField] private LevelDataSO[] levels;
+    [SerializeField] private int startLevelIndex = 0;
+
+    [Header("Gameplay Settings (runtime)")]
     [SerializeField] private int maxManualShuffle = 3;       // số lần shuffle người chơi được dùng
 
     private Tile firstSelected;
 
     private int shuffleRemaining;
     private bool isPlaying;
+    private int currentLevelIndex;
 
     public int ShuffleRemaining => shuffleRemaining;
 
@@ -34,8 +40,8 @@ public class GameManager : MonoBehaviour
     {
         GameTimerManager.Instance.OnTimeOver += GameTimerManager_OnTimeOver;
 
-        GridManager.Instance.Initialize(16, 9);
-        StartLevel();
+        currentLevelIndex = Mathf.Clamp(startLevelIndex, 0, levels != null && levels.Length > 0 ? levels.Length - 1 : 0);
+        LoadLevel(currentLevelIndex);
     }
 
     private void Update()
@@ -48,6 +54,48 @@ public class GameManager : MonoBehaviour
         OnGameStart?.Invoke(this, EventArgs.Empty);
         shuffleRemaining = maxManualShuffle;
         isPlaying = true;
+    }
+
+    private void LoadLevel(int index)
+    {
+        if (levels == null || levels.Length == 0)
+        {
+            Debug.LogError("Chưa cấu hình LevelData trong GameManager!");
+            // fallback: dùng giá trị mặc định
+            GridManager.Instance.Initialize(16, 9);
+            GameTimerManager.Instance.SetDuration(180f);
+            maxManualShuffle = 3;
+            GridManager.Instance.SetGravityMode(GravityMode.None);
+            StartLevel();
+            return;
+        }
+
+        if (index < 0 || index >= levels.Length)
+        {
+            Debug.LogError($"Index level {index} không hợp lệ!");
+            return;
+        }
+
+        LevelDataSO level = levels[index];
+
+        // Grid
+        GridManager.Instance.Initialize(level.cols, level.rows);
+        GridManager.Instance.SetGravityMode(level.gravityMode);
+
+        // Timer & shuffle
+        GameTimerManager.Instance.SetDuration(level.levelDuration);
+        maxManualShuffle += level.manualShuffleBonus;
+
+        // Background
+        if (backgroundRenderer != null && level.backgroundSprite != null)
+        {
+            backgroundRenderer.sprite = level.backgroundSprite;
+        }
+
+        // TODO: Nhạc nền nếu bạn đã có MusicManager
+        // if (level.bgm != null) MusicManager.Instance.PlayBGM(level.bgm);
+
+        StartLevel();
     }
 
     private void GameTimerManager_OnTimeOver(object sender, System.EventArgs e)

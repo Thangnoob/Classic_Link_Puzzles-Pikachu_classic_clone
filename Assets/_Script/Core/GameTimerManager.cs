@@ -5,10 +5,12 @@ public class GameTimerManager : MonoBehaviour
 {
     public static GameTimerManager Instance { get; private set; }
 
-    [SerializeField] private float levelDuration = 180f;     // tổng thời gian 1 màn (giây)
-    private float timeRemaining;
-
     public event EventHandler OnTimeOver;
+
+    private float timeRemaining;
+    private float levelDuration = 180f; 
+
+    public float LevelDuration => levelDuration;     
     public float TimeRemaining => timeRemaining;
     public float TimeNormalized => levelDuration > 0f ? Mathf.Clamp01(timeRemaining / levelDuration) : 0f;
 
@@ -34,5 +36,10 @@ public class GameTimerManager : MonoBehaviour
     private void GameManager_OnGameStart(object sender, System.EventArgs e)
     {
         timeRemaining = levelDuration;
+    }
+
+    public void SetDuration(float newLevelDuration)
+    {
+        this.levelDuration = newLevelDuration;
     }
 }

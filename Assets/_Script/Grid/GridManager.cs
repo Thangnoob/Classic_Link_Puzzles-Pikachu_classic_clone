@@ -1,6 +1,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GravityMode
+{
+    None,
+    Down,
+    Up,
+    Left,
+    Right,
+    ToCenterHorizontal,
+    ToCenterVertical
+}
+
 public class GridManager : MonoBehaviour
 {
     public static GridManager Instance { get; private set; }
@@ -13,6 +24,7 @@ public class GridManager : MonoBehaviour
     [Header("Grid Settings")]
     [SerializeField] private float margin = 0.4f;
     [SerializeField] private Vector2 gridOffset = Vector2.zero;
+    [SerializeField] private GravityMode gravityMode = GravityMode.None;
 
     private Tile[,] grid;
     private List<Tile> tileList = new List<Tile>();
@@ -22,6 +34,8 @@ public class GridManager : MonoBehaviour
 
     public int Cols => cols;
     public int Rows => rows;
+
+    public void SetGravityMode(GravityMode mode) => gravityMode = mode;
 
     private void Awake()
     {
@@ -112,7 +126,240 @@ public class GridManager : MonoBehaviour
         Vector2Int pos = tile.GridPos;
         grid[pos.x, pos.y] = null;
         tileList.Remove(tile);
-        tile.gameObject.SetActive(false); 
+        tile.gameObject.SetActive(false);
+
+        ApplyGravityAfterRemove(pos);
+    }
+
+    private void ApplyGravityAfterRemove(Vector2Int removedPos)
+    {
+        switch (gravityMode)
+        {
+            case GravityMode.Down:
+                ApplyGravityDown(removedPos.x);
+                break;
+            case GravityMode.Up:
+                ApplyGravityUp(removedPos.x);
+                break;
+            case GravityMode.Left:
+                ApplyGravityLeft(removedPos.y);
+                break;
+            case GravityMode.Right:
+                ApplyGravityRight(removedPos.y);
+                break;
+            case GravityMode.ToCenterHorizontal:
+                ApplyGravityToCenterHorizontal();
+                break;
+            case GravityMode.ToCenterVertical:
+                ApplyGravityToCenterVertical();
+                break;
+            case GravityMode.None:
+            default:
+                break;
+        }
+    }
+
+    // Các hàm gravity chi tiết
+    // Lưu ý: playable rows/cols là từ 1..(rows-2 / cols-2), viền 0 và rows-1/cols-1 là border rỗng
+
+    private void ApplyGravityDown(int col)
+    {
+        // Gom tất cả tile trong cột col (trên hàng 1..rows-2) xuống phía dưới
+        List<Tile> columnTiles = new List<Tile>();
+        for (int r = 1; r <= rows - 2; r++)
+        {
+            Tile t = grid[col, r];
+            if (t != null)
+            {
+                columnTiles.Add(t);
+                grid[col, r] = null;
+            }
+        }
+
+        int targetRow = 1;
+        foreach (var t in columnTiles)
+        {
+            Vector3 pos = GridLayoutCalculator.GetWorldPosition(col, targetRow, tileWidth, tileHeight, startX, startY);
+            t.transform.position = pos;
+            t.SetGridPos(new Vector2Int(col, targetRow));
+            grid[col, targetRow] = t;
+            targetRow++;
+        }
+    }
+
+    private void ApplyGravityUp(int col)
+    {
+        // Gom tất cả tile trong cột col (1..rows-2) lên phía trên (sát rows-2)
+        List<Tile> columnTiles = new List<Tile>();
+        for (int r = 1; r <= rows - 2; r++)
+        {
+            Tile t = grid[col, r];
+            if (t != null)
+            {
+                columnTiles.Add(t);
+                grid[col, r] = null;
+            }
+        }
+
+        int targetRow = rows - 2;
+        for (int i = columnTiles.Count - 1; i >= 0; i--)
+        {
+            Tile t = columnTiles[i];
+            Vector3 pos = GridLayoutCalculator.GetWorldPosition(col, targetRow, tileWidth, tileHeight, startX, startY);
+            t.transform.position = pos;
+            t.SetGridPos(new Vector2Int(col, targetRow));
+            grid[col, targetRow] = t;
+            targetRow--;
+        }
+    }
+
+    private void ApplyGravityLeft(int row)
+    {
+        // Gom tất cả tile trong hàng row (1..cols-2) sang trái
+        List<Tile> rowTiles = new List<Tile>();
+        for (int c = 1; c <= cols - 2; c++)
+        {
+            Tile t = grid[c, row];
+            if (t != null)
+            {
+                rowTiles.Add(t);
+                grid[c, row] = null;
+            }
+        }
+
+        int targetCol = 1;
+        foreach (var t in rowTiles)
+        {
+            Vector3 pos = GridLayoutCalculator.GetWorldPosition(targetCol, row, tileWidth, tileHeight, startX, startY);
+            t.transform.position = pos;
+            t.SetGridPos(new Vector2Int(targetCol, row));
+            grid[targetCol, row] = t;
+            targetCol++;
+        }
+    }
+
+    private void ApplyGravityRight(int row)
+    {
+        // Gom tất cả tile trong hàng row (1..cols-2) sang phải (sát cols-2)
+        List<Tile> rowTiles = new List<Tile>();
+        for (int c = 1; c <= cols - 2; c++)
+        {
+            Tile t = grid[c, row];
+            if (t != null)
+            {
+                rowTiles.Add(t);
+                grid[c, row] = null;
+            }
+        }
+
+        int targetCol = cols - 2;
+        for (int i = rowTiles.Count - 1; i >= 0; i--)
+        {
+            Tile t = rowTiles[i];
+            Vector3 pos = GridLayoutCalculator.GetWorldPosition(targetCol, row, tileWidth, tileHeight, startX, startY);
+            t.transform.position = pos;
+            t.SetGridPos(new Vector2Int(targetCol, row));
+            grid[targetCol, row] = t;
+            targetCol--;
+        }
+    }
+
+    private void ApplyGravityToCenterHorizontal()
+    {
+        // Dồn từ 2 bên trái/phải vào giữa theo từng hàng
+        int playableMinCol = 1;
+        int playableMaxCol = cols - 2;
+
+        for (int row = 1; row <= rows - 2; row++)
+        {
+            List<Tile> rowTiles = new List<Tile>();
+            for (int c = playableMinCol; c <= playableMaxCol; c++)
+            {
+                Tile t = grid[c, row];
+                if (t != null)
+                {
+                    rowTiles.Add(t);
+                    grid[c, row] = null;
+                }
+            }
+
+            int left = (playableMinCol + playableMaxCol) / 2;
+            int right = left + 1;
+            bool placeLeft = true;
+
+            foreach (var t in rowTiles)
+            {
+                int targetCol;
+                if (placeLeft)
+                {
+                    targetCol = left;
+                    left--;
+                }
+                else
+                {
+                    targetCol = right;
+                    right++;
+                }
+                placeLeft = !placeLeft;
+
+                if (targetCol < playableMinCol || targetCol > playableMaxCol)
+                    continue;
+
+                Vector3 pos = GridLayoutCalculator.GetWorldPosition(targetCol, row, tileWidth, tileHeight, startX, startY);
+                t.transform.position = pos;
+                t.SetGridPos(new Vector2Int(targetCol, row));
+                grid[targetCol, row] = t;
+            }
+        }
+    }
+
+    private void ApplyGravityToCenterVertical()
+    {
+        // Dồn từ trên/dưới vào giữa theo từng cột
+        int playableMinRow = 1;
+        int playableMaxRow = rows - 2;
+
+        for (int col = 1; col <= cols - 2; col++)
+        {
+            List<Tile> columnTiles = new List<Tile>();
+            for (int r = playableMinRow; r <= playableMaxRow; r++)
+            {
+                Tile t = grid[col, r];
+                if (t != null)
+                {
+                    columnTiles.Add(t);
+                    grid[col, r] = null;
+                }
+            }
+
+            int bottom = (playableMinRow + playableMaxRow) / 2;
+            int top = bottom + 1;
+            bool placeBottom = true;
+
+            foreach (var t in columnTiles)
+            {
+                int targetRow;
+                if (placeBottom)
+                {
+                    targetRow = bottom;
+                    bottom--;
+                }
+                else
+                {
+                    targetRow = top;
+                    top++;
+                }
+                placeBottom = !placeBottom;
+
+                if (targetRow < playableMinRow || targetRow > playableMaxRow)
+                    continue;
+
+                Vector3 pos = GridLayoutCalculator.GetWorldPosition(col, targetRow, tileWidth, tileHeight, startX, startY);
+                t.transform.position = pos;
+                t.SetGridPos(new Vector2Int(col, targetRow));
+                grid[col, targetRow] = t;
+            }
+        }
     }
 
     public void ShuffleGrid(bool ensureValidPair = false)
