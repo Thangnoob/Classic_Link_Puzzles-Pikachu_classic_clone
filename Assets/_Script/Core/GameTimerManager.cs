@@ -8,7 +8,14 @@ public class GameTimerManager : MonoBehaviour
     public event EventHandler OnTimeOver;
 
     private float timeRemaining;
-    private float levelDuration = 180f; 
+    private float levelDuration = 180f;
+
+    private float timeBonus;
+
+    private float comboCount = 0;
+    private float timeBonusCombo;
+
+    private float matchTimeCheck = 0f;
 
     public float LevelDuration => levelDuration;     
     public float TimeRemaining => timeRemaining;
@@ -31,6 +38,27 @@ public class GameTimerManager : MonoBehaviour
     {
         Instance = this;
         GameManager.Instance.OnGameStart += GameManager_OnGameStart;
+        GameManager.Instance.OnMatchSuccess += GameManager_OnMatchSuccess;
+    }
+
+    private void GameManager_OnMatchSuccess(object sender, EventArgs e)
+    {
+        if (Time.time - matchTimeCheck < 3f)
+        {
+            if (comboCount == 5)
+            {
+                timeRemaining += timeBonusCombo;
+            }
+            comboCount++;
+        }
+        else
+        {
+            timeRemaining += timeBonus;
+            comboCount = 0;
+        }   
+
+        matchTimeCheck = Time.time;
+        
     }
 
     private void GameManager_OnGameStart(object sender, System.EventArgs e)
@@ -41,5 +69,15 @@ public class GameTimerManager : MonoBehaviour
     public void SetDuration(float newLevelDuration)
     {
         this.levelDuration = newLevelDuration;
+    }
+
+    public void SetTimeBonus(float newLevelDuration)
+    {
+        this.timeBonus = newLevelDuration;
+    }
+
+    public void SetTimeBonusCombo(float newLevelDuration)
+    {
+        this.timeBonusCombo = newLevelDuration;
     }
 }

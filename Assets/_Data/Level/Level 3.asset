@@ -14,8 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cols: 16
   rows: 9
-  levelDuration: 330
+  levelDuration: 450
   manualShuffleBonus: 0
+  timeBonusPerMatch: 2
+  timeBounusCombo: 5
   backgroundSprite: {fileID: 21300000, guid: f5e9a325c7bb22340a4735242cece9a0, type: 3}
   bgm: {fileID: 8300000, guid: 14f7c0a24239fb048804b296a5875e78, type: 3}
   tileTypeCount: 24

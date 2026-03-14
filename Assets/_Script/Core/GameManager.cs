@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviour
     public event EventHandler OnMatchFailure;
     public event EventHandler OnGamePaused;
     public event EventHandler OnGameUnPaused;
-
     public event EventHandler OnGameStart;
 
     [Header("References")]

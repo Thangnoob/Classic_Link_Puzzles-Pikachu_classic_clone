@@ -30,7 +30,7 @@ public class PauseUI : MonoBehaviour
         });
         mainMenuButton.onClick.AddListener(() => {
             //Load scene main menu
-            //SceneLoader.LoadScene(SceneLoader.Scene.MainMenuScene);
+            SceneLoader.LoadScene(SceneLoader.Scene.MainMenuScene);
         });
     }
 

@@ -17,6 +17,7 @@ public class PathRenderer : MonoBehaviour
 
         for (int i = 0; i < path.Count; i++)
         {
+            Debug.Log($"Path point {i}: {path[i]}");
             Vector3 worldPos = GridManager.Instance.GridToWorld(path[i]);
             worldPos.z = -1f; // đưa line lên trên tile
             line.SetPosition(i, worldPos);

@@ -8,7 +8,7 @@ public class MusicManager : MonoBehaviour
 
     public static MusicManager Instance { get; private set; }
 
-    private static int musicVolume = 6;
+    private static int musicVolume = 5;
     private static float musicTime;
 
     private AudioSource musicAudioSource;

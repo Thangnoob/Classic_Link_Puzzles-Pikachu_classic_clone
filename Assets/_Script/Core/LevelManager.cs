@@ -14,11 +14,6 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private LevelDataSO[] levels;
     [SerializeField] private int startLevelIndex = 0;
 
-    [Header("Progress (PlayerPrefs)")]
-    [SerializeField] private bool saveProgressToPlayerPrefs = true;
-    [SerializeField] private string prefsKey_LastBonusGrantedLevel = "Pikachu.LastBonusGrantedLevel";
-    [SerializeField] private string prefsKey_TotalShuffleBonusEarned = "Pikachu.TotalShuffleBonusEarned";
-
     private int currentLevelIndex;
     private int lastBonusGrantedLevel = -1;
     private int totalShuffleBonusEarned = 0;
@@ -57,17 +52,12 @@ public class LevelManager : MonoBehaviour
 
     private void LoadProgress()
     {
-        if (!saveProgressToPlayerPrefs) return;
-        lastBonusGrantedLevel = PlayerPrefs.GetInt(prefsKey_LastBonusGrantedLevel, -1);
-        totalShuffleBonusEarned = Mathf.Max(0, PlayerPrefs.GetInt(prefsKey_TotalShuffleBonusEarned, 0));
+        
     }
 
     private void SaveProgress()
     {
-        if (!saveProgressToPlayerPrefs) return;
-        PlayerPrefs.SetInt(prefsKey_LastBonusGrantedLevel, lastBonusGrantedLevel);
-        PlayerPrefs.SetInt(prefsKey_TotalShuffleBonusEarned, totalShuffleBonusEarned);
-        PlayerPrefs.Save();
+        
     }
 
     public void LoadStartLevel()
@@ -105,6 +95,8 @@ public class LevelManager : MonoBehaviour
 
         // Timer
         GameTimerManager.Instance.SetDuration(level.levelDuration);
+        GameTimerManager.Instance.SetTimeBonus(level.timeBonusPerMatch);
+        GameTimerManager.Instance.SetTimeBonusCombo(level.timeBounusCombo); 
 
         // Background
         if (backgroundRenderer != null && level.backgroundSprite != null)

@@ -10,6 +10,8 @@ public class LevelDataSO : ScriptableObject
     [Header("Time & Shuffle")]
     public float levelDuration = 180f;
     public int manualShuffleBonus = 3;
+    public float timeBonusPerMatch = 2f;
+    public float timeBounusCombo = 4f;
 
     [Header("Visual")]
     public Sprite backgroundSprite;
