@@ -64,6 +64,9 @@ public class GameManager : MonoBehaviour
         OnGameStart?.Invoke(this, EventArgs.Empty);
         shuffleRemaining = maxManualShuffle;
         isPlaying = true;
+
+        if (ScoreManager.Instance != null)
+            ScoreManager.Instance.StartLevel();
     }
 
     private void LevelManager_OnLevelLoaded(object sender, EventArgs e)
@@ -124,6 +127,9 @@ public class GameManager : MonoBehaviour
             GridManager.Instance.RemoveTile(firstSelected);
             GridManager.Instance.RemoveTile(clicked);
 
+            if (ScoreManager.Instance != null)
+                ScoreManager.Instance.AddMatch();
+
             OnMatchSuccess?.Invoke(this, EventArgs.Empty);
 
             // Nếu hết cặp → shuffle đảm bảo còn đường
@@ -133,12 +139,15 @@ public class GameManager : MonoBehaviour
                 GridManager.Instance.ShuffleGrid(true); // ← ensure valid pair
             }
 
-            // Nếu muốn: kiểm tra thắng khi không còn tile nào
-            if (GridManager.Instance.GetActiveTiles().Count == 0) { 
-                isPlaying = false; 
-                Debug.Log("Win!"); 
+            // Kiểm tra thắng khi không còn tile nào
+            if (GridManager.Instance.GetActiveTiles().Count == 0)
+            {
+                isPlaying = false;
+                Debug.Log("Win!");
 
-                // Cộng bonus đúng 1 lần khi qua level này, nhưng bị giới hạn bởi manualShuffleCap
+                if (ScoreManager.Instance != null && GameTimerManager.Instance != null)
+                    ScoreManager.Instance.CompleteLevel(GameTimerManager.Instance.TimeRemaining);
+
                 if (LevelManager.Instance != null)
                 {
                     LevelManager.Instance.MarkLevelCompleted(LevelManager.Instance.CurrentLevelIndex);
@@ -172,6 +181,8 @@ public class GameManager : MonoBehaviour
         }
 
         shuffleRemaining--;
+        if (ScoreManager.Instance != null)
+            ScoreManager.Instance.AddShuffleUsed();
         GridManager.Instance.ShuffleGrid(true);
         Debug.Log($"Shuffle thủ công, còn lại: {shuffleRemaining}");
     }

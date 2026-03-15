@@ -28,7 +28,7 @@ public class GridManager : MonoBehaviour
 
     private Tile[,] grid;
     private List<Tile> tileList = new List<Tile>();
-    private int cols, rows;
+    [SerializeField]private int cols, rows;
     private float tileWidth, tileHeight;
     private float startX, startY;
 
