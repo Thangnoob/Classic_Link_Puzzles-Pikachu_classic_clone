@@ -15,8 +15,9 @@ public class LevelManager : MonoBehaviour
     [SerializeField] private int startLevelIndex = 0;
 
     private int currentLevelIndex;
-    private int lastBonusGrantedLevel = -1;
     private int totalShuffleBonusEarned = 0;
+    private const string CurrentLevelIndexKey = "CurrentLevelIndexKey";
+    private const string TotalShuffleBonusEarnedKey = "TotalShuffleBonusEarnedKey";
 
     public int CurrentLevelIndex => currentLevelIndex;
     public LevelDataSO CurrentLevel => (levels != null && levels.Length > 0) ? levels[currentLevelIndex] : null;
@@ -35,30 +36,17 @@ public class LevelManager : MonoBehaviour
         return Mathf.Min(cap, baseValue + TotalShuffleBonusEarned);
     }
 
-    public void MarkLevelCompleted(int levelIndex)
+    public void AddShuffleBonusForLevel(int levelIndex)
     {
         if (levels == null || levels.Length == 0) return;
         if (levelIndex < 0 || levelIndex >= levels.Length) return;
 
-        // Bonus chỉ cộng 1 lần khi qua level tương ứng
-        if (levelIndex <= lastBonusGrantedLevel) return;
-
         int bonus = Mathf.Max(0, levels[levelIndex].manualShuffleBonus);
         totalShuffleBonusEarned += bonus;
-        lastBonusGrantedLevel = levelIndex;
 
         SaveProgress();
     }
 
-    private void LoadProgress()
-    {
-        
-    }
-
-    private void SaveProgress()
-    {
-        
-    }
 
     public void LoadStartLevel()
     {
@@ -68,8 +56,18 @@ public class LevelManager : MonoBehaviour
             return;
         }
 
-        int clamped = Mathf.Clamp(startLevelIndex, 0, levels.Length - 1);
+        int requested = startLevelIndex;
+        if (SceneLoader.IsContinue)
+            requested = SceneLoader.RequestedLevelIndex;
+
+        int clamped = Mathf.Clamp(requested, 0, levels.Length - 1);
         LoadLevel(clamped);
+    }
+
+    public void SaveCurrentLevelIndex(int index)
+    {
+        currentLevelIndex = Mathf.Max(0, index);
+        SaveProgress();
     }
 
     public void LoadLevel(int index)
@@ -87,6 +85,7 @@ public class LevelManager : MonoBehaviour
         }
 
         currentLevelIndex = index;
+        Debug.Log("Level Manager current level: " + currentLevelIndex);
         LevelDataSO level = levels[currentLevelIndex];
 
         // Grid
@@ -107,5 +106,17 @@ public class LevelManager : MonoBehaviour
         if (level.bgm != null) MusicManager.Instance.PlayBGM(level.bgm);
 
         OnLevelLoaded?.Invoke(this, EventArgs.Empty);
+    }
+    private void LoadProgress()
+    {
+        currentLevelIndex = PlayerPrefs.GetInt(CurrentLevelIndexKey, 0);
+        totalShuffleBonusEarned = Mathf.Max(0, PlayerPrefs.GetInt(TotalShuffleBonusEarnedKey, 0));
+    }
+
+    private void SaveProgress()
+    {
+        PlayerPrefs.SetInt(CurrentLevelIndexKey, currentLevelIndex);
+        PlayerPrefs.SetInt(TotalShuffleBonusEarnedKey, totalShuffleBonusEarned);
+        PlayerPrefs.Save();
     }
 }

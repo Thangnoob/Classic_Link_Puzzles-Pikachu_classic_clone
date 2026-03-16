@@ -1143,6 +1143,7 @@ MonoBehaviour:
   shuffleScoreText: {fileID: 310943162}
   timeScoreText: {fileID: 184883257}
   totalScoreText: {fileID: 1716782557}
+  nextLevelButton: {fileID: 28495941}
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -2231,7 +2232,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 0bdde5db74252bf44bf0c264b805d7d6, type: 2}
   - {fileID: 11400000, guid: f06ae9798b83e1946ac4a72e346eaa44, type: 2}
   - {fileID: 11400000, guid: 0b03f28166f56c24691dd40f4f39ae98, type: 2}
-  startLevelIndex: 1
+  startLevelIndex: 0
 --- !u!1 &1255311667
 GameObject:
   m_ObjectHideFlags: 0
@@ -4036,6 +4037,8 @@ MonoBehaviour:
   timePointsPerSecond: 20
   matchCount: 0
   shuffleUsedCount: 0
+  levelStartingShuffle: 0
+  totalScoreSaved: 0
 --- !u!1 &1836037992
 GameObject:
   m_ObjectHideFlags: 0

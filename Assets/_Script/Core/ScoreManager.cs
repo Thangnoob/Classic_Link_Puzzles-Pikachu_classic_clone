@@ -5,6 +5,8 @@ public class ScoreManager : MonoBehaviour
 {
     public static ScoreManager Instance { get; private set; }
 
+    private const string TotalScoreKey = "TotalScoreKey";
+
     [Header("Score Weights")]
     [Tooltip("Điểm mỗi cặp match (100 → 7200 khi hoàn thành 72 cặp)")]
     [SerializeField] private int matchPointsPerPair = 100;
@@ -18,6 +20,8 @@ public class ScoreManager : MonoBehaviour
     [Header("Runtime (read-only)")]
     [SerializeField] private int matchCount;
     [SerializeField] private int shuffleUsedCount;
+    [SerializeField] private int levelStartingShuffle;
+    [SerializeField] private int totalScoreSaved;
 
     private int lastMatchScore;
     private int lastShuffleScore;
@@ -36,13 +40,15 @@ public class ScoreManager : MonoBehaviour
     private void Awake()
     {
         Instance = this;
+        totalScoreSaved = PlayerPrefs.GetInt(TotalScoreKey, 0);
     }
 
     /// <summary>Gọi khi bắt đầu màn (LevelManager load xong / GameManager StartLevel).</summary>
-    public void StartLevel()
+    public void StartLevel(int startingShuffle)
     {
         matchCount = 0;
         shuffleUsedCount = 0;
+        levelStartingShuffle = Mathf.Max(0, startingShuffle);
         lastMatchScore = lastShuffleScore = lastTimeScore = lastTotalScore = 0;
     }
 
@@ -63,12 +69,26 @@ public class ScoreManager : MonoBehaviour
     public void CompleteLevel(float timeRemainingSeconds)
     {
         lastMatchScore = matchCount * matchPointsPerPair;
-        lastShuffleScore = shuffleUsedCount * shufflePointsPerUse;
+        int shuffleRemaining = Mathf.Max(0, levelStartingShuffle - shuffleUsedCount);
+        lastShuffleScore = shuffleRemaining * shufflePointsPerUse;
         lastTimeScore = Mathf.RoundToInt(timeRemainingSeconds * timePointsPerSecond);
         lastTotalScore = lastMatchScore + lastShuffleScore + lastTimeScore;
 
+        totalScoreSaved += lastTotalScore;
+        PlayerPrefs.SetInt(TotalScoreKey, totalScoreSaved);
+        PlayerPrefs.Save();
+
         OnScoreUpdated?.Invoke(this, EventArgs.Empty);
     }
+
+    /// <summary>Lưu tổng điểm hiện tại (khi thua: không cộng điểm level đang chơi).</summary>
+    public void SaveTotalScoreWithoutCurrentLevel()
+    {
+        PlayerPrefs.SetInt(TotalScoreKey, totalScoreSaved);
+        PlayerPrefs.Save();
+    }
+
+    public int GetSavedTotalScore() => totalScoreSaved;
 
     /// <summary>Điểm tổng cuối (sau khi gọi CompleteLevel).</summary>
     public int GetTotalScore() => lastTotalScore;

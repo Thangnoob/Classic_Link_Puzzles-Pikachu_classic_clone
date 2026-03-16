@@ -4,8 +4,13 @@ public static class SceneLoader {
     {
         MainMenuScene,
         GameScene,
-        GameOverScene
+        GameOverScene,
+        TotalScoreScene
     }
+
+    // Transient (runtime) request for GameScene
+    public static bool IsContinue { get; set; }
+    public static int RequestedLevelIndex { get; set; }
 
     public static void LoadScene(Scene scene)
     {

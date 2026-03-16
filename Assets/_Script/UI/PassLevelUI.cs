@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using System;
+using UnityEngine.UI;
 
 public class PassLevelUI : MonoBehaviour
 {
@@ -8,10 +9,12 @@ public class PassLevelUI : MonoBehaviour
     [SerializeField] private TMP_Text shuffleScoreText;
     [SerializeField] private TMP_Text timeScoreText;
     [SerializeField] private TMP_Text totalScoreText;
+    [SerializeField] private Button nextLevelButton;
 
     private void Start()
     {
         ScoreManager.Instance.OnScoreUpdated += ScoreManager_OnScoreUpdated;
+        nextLevelButton.onClick.AddListener(OnNextLevel);
         Hide();
     }
 
@@ -52,4 +55,22 @@ public class PassLevelUI : MonoBehaviour
         gameObject.SetActive(false);
     }
 
+    public void OnNextLevel()
+    {
+        Time.timeScale = 1f;
+        Hide();
+
+        if (LevelManager.Instance == null)
+            return;
+
+        int current = LevelManager.Instance.CurrentLevelIndex;
+        if (current >= 7)
+        {
+            SceneLoader.LoadScene(SceneLoader.Scene.TotalScoreScene);
+            return;
+        }
+
+        Debug.Log("Pass level UI current level: " + current);
+        LevelManager.Instance.LoadLevel(current);
+    }
 }

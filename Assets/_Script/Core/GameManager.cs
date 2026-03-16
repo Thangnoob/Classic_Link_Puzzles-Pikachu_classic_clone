@@ -67,12 +67,14 @@ public class GameManager : MonoBehaviour
         isPlaying = true;
 
         if (ScoreManager.Instance != null)
-            ScoreManager.Instance.StartLevel();
+            ScoreManager.Instance.StartLevel(maxManualShuffle);
     }
 
     private void LevelManager_OnLevelLoaded(object sender, EventArgs e)
     {
         ApplyLevelConfigForGameplay();
+        Time.timeScale = 1f;
+        StartLevel();
     }
 
     private void ApplyLevelConfigForGameplay()
@@ -92,6 +94,9 @@ public class GameManager : MonoBehaviour
         isPlaying = false;
         Debug.Log("Hết thời gian!");
         // Tùy bạn xử lý: hiện popup thua, dừng input, v.v.
+
+        if (ScoreManager.Instance != null)
+            ScoreManager.Instance.SaveTotalScoreWithoutCurrentLevel();
     }
 
     public void OnTileClicked(Tile clicked)
@@ -175,8 +180,12 @@ public class GameManager : MonoBehaviour
 
             if (LevelManager.Instance != null)
             {
-                LevelManager.Instance.MarkLevelCompleted(LevelManager.Instance.CurrentLevelIndex);
+                LevelManager.Instance.AddShuffleBonusForLevel(LevelManager.Instance.CurrentLevelIndex);
                 ApplyLevelConfigForGameplay();
+
+                // Lưu level tiếp theo để Continue load lại
+                int nextLevel = LevelManager.Instance.CurrentLevelIndex + 1;
+                LevelManager.Instance.SaveCurrentLevelIndex(nextLevel);
             }
         }
     }
