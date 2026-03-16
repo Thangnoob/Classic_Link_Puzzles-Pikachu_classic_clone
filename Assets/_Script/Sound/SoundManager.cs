@@ -9,7 +9,7 @@ public class SoundManager : MonoBehaviour
 
     public static SoundManager Instance { get; private set; }
 
-    private static int soundVolume = 5;
+    private static int soundVolume = 4;
 
     public event EventHandler OnSoundVolumeChanged;
 

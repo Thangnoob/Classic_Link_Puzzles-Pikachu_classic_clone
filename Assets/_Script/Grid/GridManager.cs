@@ -127,34 +127,30 @@ public class GridManager : MonoBehaviour
         grid[pos.x, pos.y] = null;
         tileList.Remove(tile);
         tile.gameObject.SetActive(false);
-
-        ApplyGravityAfterRemove(pos);
     }
-
-    private void ApplyGravityAfterRemove(Vector2Int removedPos)
+    // Hàm mới: ApplyGravityForBoard() – giống ApplyGravityAfterRemove,
+    // nhưng không nhận removedPos, chỉ switch theo gravityMode và quét toàn board.
+    public void ApplyGravityForBoard()
     {
         switch (gravityMode)
         {
             case GravityMode.Down:
-                ApplyGravityDown(removedPos.x);
+                for (int c = 1; c <= cols - 2; c++) ApplyGravityDown(c);
                 break;
             case GravityMode.Up:
-                ApplyGravityUp(removedPos.x);
+                for (int c = 1; c <= cols - 2; c++) ApplyGravityUp(c);
                 break;
             case GravityMode.Left:
-                ApplyGravityLeft(removedPos.y);
+                for (int r = 1; r <= rows - 2; r++) ApplyGravityLeft(r);
                 break;
             case GravityMode.Right:
-                ApplyGravityRight(removedPos.y);
+                for (int r = 1; r <= rows - 2; r++) ApplyGravityRight(r);
                 break;
             case GravityMode.ToCenterHorizontal:
                 ApplyGravityToCenterHorizontal();
                 break;
             case GravityMode.ToCenterVertical:
                 ApplyGravityToCenterVertical();
-                break;
-            case GravityMode.None:
-            default:
                 break;
         }
     }
@@ -266,9 +262,9 @@ public class GridManager : MonoBehaviour
 
     private void ApplyGravityToCenterHorizontal()
     {
-        // Dồn từ 2 bên trái/phải vào giữa theo từng hàng
         int playableMinCol = 1;
         int playableMaxCol = cols - 2;
+        int totalPlayable = playableMaxCol - playableMinCol + 1;
 
         for (int row = 1; row <= rows - 2; row++)
         {
@@ -283,29 +279,17 @@ public class GridManager : MonoBehaviour
                 }
             }
 
-            int left = (playableMinCol + playableMaxCol) / 2;
-            int right = left + 1;
-            bool placeLeft = true;
+            if (rowTiles.Count == 0) continue;
 
-            foreach (var t in rowTiles)
+            // Tính col bắt đầu để cụm tile nằm giữa
+            int startCol = playableMinCol + (totalPlayable - rowTiles.Count) / 2;
+
+            for (int i = 0; i < rowTiles.Count; i++)
             {
-                int targetCol;
-                if (placeLeft)
-                {
-                    targetCol = left;
-                    left--;
-                }
-                else
-                {
-                    targetCol = right;
-                    right++;
-                }
-                placeLeft = !placeLeft;
-
-                if (targetCol < playableMinCol || targetCol > playableMaxCol)
-                    continue;
-
-                Vector3 pos = GridLayoutCalculator.GetWorldPosition(targetCol, row, tileWidth, tileHeight, startX, startY);
+                int targetCol = startCol + i;
+                Tile t = rowTiles[i];
+                Vector3 pos = GridLayoutCalculator.GetWorldPosition(
+                    targetCol, row, tileWidth, tileHeight, startX, startY);
                 t.transform.position = pos;
                 t.SetGridPos(new Vector2Int(targetCol, row));
                 grid[targetCol, row] = t;
@@ -313,11 +297,12 @@ public class GridManager : MonoBehaviour
         }
     }
 
+    // Tương tự cho ToCenterVertical:
     private void ApplyGravityToCenterVertical()
     {
-        // Dồn từ trên/dưới vào giữa theo từng cột
         int playableMinRow = 1;
         int playableMaxRow = rows - 2;
+        int totalPlayable = playableMaxRow - playableMinRow + 1;
 
         for (int col = 1; col <= cols - 2; col++)
         {
@@ -332,29 +317,16 @@ public class GridManager : MonoBehaviour
                 }
             }
 
-            int bottom = (playableMinRow + playableMaxRow) / 2;
-            int top = bottom + 1;
-            bool placeBottom = true;
+            if (columnTiles.Count == 0) continue;
 
-            foreach (var t in columnTiles)
+            int startRow = playableMinRow + (totalPlayable - columnTiles.Count) / 2;
+
+            for (int i = 0; i < columnTiles.Count; i++)
             {
-                int targetRow;
-                if (placeBottom)
-                {
-                    targetRow = bottom;
-                    bottom--;
-                }
-                else
-                {
-                    targetRow = top;
-                    top++;
-                }
-                placeBottom = !placeBottom;
-
-                if (targetRow < playableMinRow || targetRow > playableMaxRow)
-                    continue;
-
-                Vector3 pos = GridLayoutCalculator.GetWorldPosition(col, targetRow, tileWidth, tileHeight, startX, startY);
+                int targetRow = startRow + i;
+                Tile t = columnTiles[i];
+                Vector3 pos = GridLayoutCalculator.GetWorldPosition(
+                    col, targetRow, tileWidth, tileHeight, startX, startY);
                 t.transform.position = pos;
                 t.SetGridPos(new Vector2Int(col, targetRow));
                 grid[col, targetRow] = t;
@@ -367,7 +339,6 @@ public class GridManager : MonoBehaviour
         var remaining = GetActiveTiles();
         if (remaining.Count < 2) return;
 
-        // Lấy danh sách vị trí hiện tại của các tile còn lại
         List<Vector2Int> positions = new List<Vector2Int>();
         foreach (var t in remaining) positions.Add(t.GridPos);
 
@@ -376,17 +347,19 @@ public class GridManager : MonoBehaviour
 
         do
         {
-            ShuffleList(positions); // Fisher-Yates
+            ShuffleList(positions);
 
-            // Di chuyển tile sang vị trí mới
+            // ✅ Bước 1: Clear toàn bộ grid trước
+            foreach (var tile in remaining)
+                grid[tile.GridPos.x, tile.GridPos.y] = null;
+
+            // ✅ Bước 2: Gán vị trí mới
             for (int i = 0; i < remaining.Count; i++)
             {
                 Tile tile = remaining[i];
-                Vector2Int oldPos = tile.GridPos;
                 Vector2Int newPos = positions[i];
-
-                grid[oldPos.x, oldPos.y] = null;
-                tile.transform.position = GridLayoutCalculator.GetWorldPosition(newPos.x, newPos.y, tileWidth, tileHeight, startX, startY);
+                tile.transform.position = GridLayoutCalculator.GetWorldPosition(
+                    newPos.x, newPos.y, tileWidth, tileHeight, startX, startY);
                 tile.SetGridPos(newPos);
                 grid[newPos.x, newPos.y] = tile;
             }
@@ -395,8 +368,8 @@ public class GridManager : MonoBehaviour
         }
         while (ensureValidPair && !matchPathfinder.HasAnyValidPair() && attempts < maxAttempts);
 
-        if (ensureValidPair && attempts >= maxAttempts)
-            Debug.LogWarning("Không tìm thấy layout có match sau 20 lần shuffle!");
+        // ✅ Bước 3: Apply gravity sau shuffle để layout nhất quán
+        ApplyGravityForBoard();
     }
 
     private void ShuffleList<T>(List<T> list)

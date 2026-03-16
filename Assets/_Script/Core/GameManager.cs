@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -125,35 +126,17 @@ public class GameManager : MonoBehaviour
             pathRenderer.DrawConnection(path);
 
             GridManager.Instance.RemoveTile(firstSelected);
-            GridManager.Instance.RemoveTile(clicked);
+            GridManager.Instance.RemoveTile(clicked);   
+
+            GridManager.Instance.ApplyGravityForBoard();
 
             if (ScoreManager.Instance != null)
                 ScoreManager.Instance.AddMatch();
 
             OnMatchSuccess?.Invoke(this, EventArgs.Empty);
 
-            // Nếu hết cặp → shuffle đảm bảo còn đường
-            if (!matchPathfinder.HasAnyValidPair())
-            {
-                Debug.Log("Hết cặp → Auto Shuffle...");
-                GridManager.Instance.ShuffleGrid(true); // ← ensure valid pair
-            }
-
-            // Kiểm tra thắng khi không còn tile nào
-            if (GridManager.Instance.GetActiveTiles().Count == 0)
-            {
-                isPlaying = false;
-                Debug.Log("Win!");
-
-                if (ScoreManager.Instance != null && GameTimerManager.Instance != null)
-                    ScoreManager.Instance.CompleteLevel(GameTimerManager.Instance.TimeRemaining);
-
-                if (LevelManager.Instance != null)
-                {
-                    LevelManager.Instance.MarkLevelCompleted(LevelManager.Instance.CurrentLevelIndex);
-                    ApplyLevelConfigForGameplay();
-                }
-            }
+            // Delay 1 frame để gravity cập nhật grid xong rồi mới check pair
+            StartCoroutine(CheckPairAfterGravity());
         }
         else
         {
@@ -169,6 +152,33 @@ public class GameManager : MonoBehaviour
         }
 
         firstSelected = null;
+    }
+    
+    private IEnumerator CheckPairAfterGravity()
+    {
+        yield return null;
+        // Nếu hết cặp → shuffle đảm bảo còn đường
+        if (!matchPathfinder.HasAnyValidPair())
+        {
+            Debug.Log("Hết cặp → Auto Shuffle...");
+            GridManager.Instance.ShuffleGrid(true); // ← ensure valid pair
+        }
+
+        // Kiểm tra thắng khi không còn tile nào
+        if (GridManager.Instance.GetActiveTiles().Count == 0)
+        {
+            isPlaying = false;
+            Debug.Log("Win!");
+
+            if (ScoreManager.Instance != null && GameTimerManager.Instance != null)
+                ScoreManager.Instance.CompleteLevel(GameTimerManager.Instance.TimeRemaining);
+
+            if (LevelManager.Instance != null)
+            {
+                LevelManager.Instance.MarkLevelCompleted(LevelManager.Instance.CurrentLevelIndex);
+                ApplyLevelConfigForGameplay();
+            }
+        }
     }
 
     public void ManualShuffle()
