@@ -9,8 +9,8 @@ public class PlayerPrefsViewer : EditorWindow
     private List<string> keys = new List<string>()
     {
         "CurrentLevelIndexKey",
-        "sfx_volume",
-        "player_level",
+        "TotalScoreKey",
+        "HighScoreKey",
         "high_score"
     };
 

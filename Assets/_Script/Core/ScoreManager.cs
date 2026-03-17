@@ -84,7 +84,7 @@ public class ScoreManager : MonoBehaviour
 
         totalScoreSaved += lastTotalScore;
         PlayerPrefs.SetInt(TotalScoreKey, totalScoreSaved);
-        UpdateHighScore(lastMatchScore);
+        UpdateHighScore(totalScoreSaved);
         PlayerPrefs.Save();
 
         OnScoreUpdated?.Invoke(this, EventArgs.Empty);

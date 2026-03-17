@@ -126,4 +126,9 @@ public class LevelManager : MonoBehaviour
         PlayerPrefs.Save();
         Debug.Log("LevelManager: Level đã được reset!");
     }
+
+    public static int GetCurrentLevel()
+    {
+        return PlayerPrefs.GetInt(CurrentLevelIndexKey, 0);
+    }
 }

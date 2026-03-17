@@ -5,10 +5,11 @@ using UnityEngine.UI;
 public class InGameUI : MonoBehaviour
 {
     [Header("UI References")]
-    [SerializeField] private TMP_Text shuffleText;
+    [SerializeField] private TextMeshProUGUI shuffleText;
     [SerializeField] private Image timerBarImage;
     [SerializeField] private Button shuffleButton;
     [SerializeField] private Button pauseButton;
+    [SerializeField] private TextMeshProUGUI currentLevelText;
 
     private void Awake()
     {
@@ -16,6 +17,16 @@ public class InGameUI : MonoBehaviour
         pauseButton.onClick.AddListener(() => {
             GameManager.Instance.PauseGame();
         });
+    }
+
+    private void Start()
+    {
+        LevelManager.Instance.OnLevelLoaded += Instance_OnLevelLoaded;
+    }
+
+    private void Instance_OnLevelLoaded(object sender, System.EventArgs e)
+    {
+        UpdateTotalScoreProgressLabel();
     }
 
     private void Update()
@@ -47,5 +58,11 @@ public class InGameUI : MonoBehaviour
     private void UpdateTimerBar()
     {
         timerBarImage.fillAmount = GameTimerManager.Instance.TimeNormalized;
+    }
+
+    private void UpdateTotalScoreProgressLabel()
+    {
+        int currentLevel = LevelManager.Instance.CurrentLevelIndex + 1;
+        currentLevelText.text = "Màn " + currentLevel.ToString() + "/7";
     }
 }

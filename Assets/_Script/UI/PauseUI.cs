@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -11,6 +11,7 @@ public class PauseUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI musicButtonText;
     [SerializeField] private Button sfxButton;
     [SerializeField] private TextMeshProUGUI sfxButtonText;
+    [SerializeField] private TextMeshProUGUI totalScoreProgressText;
     [SerializeField] private Button resumeButton;
     [SerializeField] private Button mainMenuButton;
 
@@ -41,7 +42,13 @@ public class PauseUI : MonoBehaviour
 
         sfxButtonText.text = SoundManager.Instance.GetSoundVolume() == 0 ? "Off" : SoundManager.Instance.GetSoundVolume().ToString();
         musicButtonText.text = MusicManager.Instance.GetMusicVolume() == 0 ? "Off" : MusicManager.Instance.GetMusicVolume().ToString();
+        ScoreManager.Instance.OnScoreUpdated += ScoreManager_OnScoreUpdated;
         Hide();
+    }
+
+    private void ScoreManager_OnScoreUpdated(object sender, EventArgs e)
+    {
+        totalScoreProgressText.text = "Điểm hiện tại:\n" + ScoreManager.GetSavedTotalScoreStatic().ToString();
     }
 
     private void GameManager_OnGamePaused(object sender, EventArgs e)
