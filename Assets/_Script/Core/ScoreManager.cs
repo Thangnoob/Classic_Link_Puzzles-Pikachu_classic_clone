@@ -6,6 +6,7 @@ public class ScoreManager : MonoBehaviour
     public static ScoreManager Instance { get; private set; }
 
     private const string TotalScoreKey = "TotalScoreKey";
+    private const string HighScoreKey = "HighScoreKey";
 
     [Header("Score Weights")]
     [Tooltip("Điểm mỗi cặp match (100 → 7200 khi hoàn thành 72 cặp)")]
@@ -39,8 +40,15 @@ public class ScoreManager : MonoBehaviour
 
     private void Awake()
     {
-        Instance = this;
-        totalScoreSaved = PlayerPrefs.GetInt(TotalScoreKey, 0);
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+            totalScoreSaved = PlayerPrefs.GetInt(TotalScoreKey, 0);
+        } else
+        {
+            Destroy(gameObject);
+        }
     }
 
     /// <summary>Gọi khi bắt đầu màn (LevelManager load xong / GameManager StartLevel).</summary>
@@ -76,6 +84,7 @@ public class ScoreManager : MonoBehaviour
 
         totalScoreSaved += lastTotalScore;
         PlayerPrefs.SetInt(TotalScoreKey, totalScoreSaved);
+        UpdateHighScore(lastMatchScore);
         PlayerPrefs.Save();
 
         OnScoreUpdated?.Invoke(this, EventArgs.Empty);
@@ -86,6 +95,17 @@ public class ScoreManager : MonoBehaviour
     {
         PlayerPrefs.SetInt(TotalScoreKey, totalScoreSaved);
         PlayerPrefs.Save();
+    }
+
+    private void UpdateHighScore(float newScore)
+    {
+        float oldScore = PlayerPrefs.GetFloat(HighScoreKey);
+        if (oldScore < newScore)
+        {
+            PlayerPrefs.SetFloat(HighScoreKey, newScore);
+            PlayerPrefs.Save();
+        }
+
     }
 
     public int GetSavedTotalScore() => totalScoreSaved;
@@ -101,4 +121,21 @@ public class ScoreManager : MonoBehaviour
 
     /// <summary>Điểm từ thời gian (giây còn lại * 20).</summary>
     public int GetTimeScore() => lastTimeScore;
+
+    public static int GetSavedTotalScoreStatic()
+    {
+        return PlayerPrefs.GetInt(TotalScoreKey, 0);
+    }
+
+    public static int GetHighScoreStatic()
+    {
+        return PlayerPrefs.GetInt(HighScoreKey, 0);
+    }
+
+    public static void ResetScoreProgress()
+    {
+        PlayerPrefs.SetFloat(TotalScoreKey, 0);
+        PlayerPrefs.Save();
+        Debug.Log("ScoreManager: Điểm tiến trình đã reset!");
+    }
 }

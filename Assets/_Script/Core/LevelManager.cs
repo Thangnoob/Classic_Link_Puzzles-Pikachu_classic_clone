@@ -119,4 +119,11 @@ public class LevelManager : MonoBehaviour
         PlayerPrefs.SetInt(TotalShuffleBonusEarnedKey, totalShuffleBonusEarned);
         PlayerPrefs.Save();
     }
+
+    public static void ResetLevelProgress()
+    {
+        PlayerPrefs.SetInt(CurrentLevelIndexKey, 0);
+        PlayerPrefs.Save();
+        Debug.Log("LevelManager: Level đã được reset!");
+    }
 }

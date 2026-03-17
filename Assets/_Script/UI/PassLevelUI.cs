@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 public class PassLevelUI : MonoBehaviour
 {
-    [SerializeField] private TMP_Text matchScoreText;
-    [SerializeField] private TMP_Text shuffleScoreText;
-    [SerializeField] private TMP_Text timeScoreText;
-    [SerializeField] private TMP_Text totalScoreText;
+    [SerializeField] private TextMeshProUGUI matchScoreText;
+    [SerializeField] private TextMeshProUGUI shuffleScoreText;
+    [SerializeField] private TextMeshProUGUI timeScoreText;
+    [SerializeField] private TextMeshProUGUI totalScoreText;
     [SerializeField] private Button nextLevelButton;
 
     private void Start()
@@ -66,7 +66,7 @@ public class PassLevelUI : MonoBehaviour
         int current = LevelManager.Instance.CurrentLevelIndex;
         if (current >= 7)
         {
-            SceneLoader.LoadScene(SceneLoader.Scene.TotalScoreScene);
+            SceneLoader.LoadScene(SceneLoader.Scene.GameOverScene);
             return;
         }
 

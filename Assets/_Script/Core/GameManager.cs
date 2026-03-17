@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public event EventHandler OnGamePaused;
     public event EventHandler OnGameUnPaused;
     public event EventHandler OnGameStart;
+    public event EventHandler OnLevelPassed;
 
     [Header("References")]
     [SerializeField] private MatchPathfinder matchPathfinder;
@@ -175,6 +176,8 @@ public class GameManager : MonoBehaviour
             isPlaying = false;
             Debug.Log("Win!");
 
+            OnLevelPassed?.Invoke(this, EventArgs.Empty);
+
             if (ScoreManager.Instance != null && GameTimerManager.Instance != null)
                 ScoreManager.Instance.CompleteLevel(GameTimerManager.Instance.TimeRemaining);
 
@@ -221,12 +224,14 @@ public class GameManager : MonoBehaviour
     public void PauseGame()
     {
         Time.timeScale = 0f;
+        isPlaying = false;
         OnGamePaused?.Invoke(this, EventArgs.Empty);
     }
 
     public void UnPauseGame()
     {
         Time.timeScale = 1f;
+        isPlaying = true;
         OnGameUnPaused?.Invoke(this, EventArgs.Empty);
     }
 

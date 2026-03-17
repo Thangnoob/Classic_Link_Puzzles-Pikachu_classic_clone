@@ -1498,6 +1498,7 @@ MonoBehaviour:
   selectAudioClip: {fileID: 8300000, guid: 26967497473e677488a7b821f534dc76, type: 3}
   connectSuccessAudioClip: {fileID: 8300000, guid: fabb4eb2c90aca042945c78df958172b, type: 3}
   connectFailAudioClip: {fileID: 8300000, guid: 0c361b661f799544e805d38eaa9600ce, type: 3}
+  winAudioClip: {fileID: 8300000, guid: a98340884d0cf284591784ecc13a07fb, type: 3}
 --- !u!4 &620589658
 Transform:
   m_ObjectHideFlags: 0

@@ -16,6 +16,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] private AudioClip selectAudioClip;
     [SerializeField] private AudioClip connectSuccessAudioClip;
     [SerializeField] private AudioClip connectFailAudioClip;
+    [SerializeField] private AudioClip winAudioClip;
 
     private void Awake()
     {
@@ -27,6 +28,12 @@ public class SoundManager : MonoBehaviour
         GameManager.Instance.OnTileSelected += GameManager_OnTileSelected;
         GameManager.Instance.OnMatchSuccess += GameManager_OnMatchSuccess;
         GameManager.Instance.OnMatchFailure += GameManager_OnMatchFailure;
+        GameManager.Instance.OnLevelPassed += GameManager_OnLevelPassed;
+    }
+
+    private void GameManager_OnLevelPassed(object sender, EventArgs e)
+    {
+        AudioSource.PlayClipAtPoint(winAudioClip, Camera.main.transform.position, GetSoundVolume());
     }
 
     private void GameManager_OnTileSelected(object sender, System.EventArgs e)

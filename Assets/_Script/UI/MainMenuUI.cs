@@ -38,5 +38,8 @@ public class MainMenuUI : MonoBehaviour
         });
     }
 
-   
+   private void ClearPlayerPref()
+    {
+        PlayerPrefs.SetInt(CurrentLevelIndexKey, 0);
+    }
 }

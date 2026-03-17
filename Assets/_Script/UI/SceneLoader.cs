@@ -4,8 +4,7 @@ public static class SceneLoader {
     {
         MainMenuScene,
         GameScene,
-        GameOverScene,
-        TotalScoreScene
+        GameOverScene
     }
 
     // Transient (runtime) request for GameScene
