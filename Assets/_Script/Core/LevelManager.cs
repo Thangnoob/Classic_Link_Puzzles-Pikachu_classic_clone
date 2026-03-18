@@ -28,31 +28,14 @@ public class LevelManager : MonoBehaviour
         Instance = this;
         LoadProgress();
     }
-
-    public int GetManualShuffleLimit(int baseManualShuffle, int maxCap)
-    {
-        int baseValue = Mathf.Max(0, baseManualShuffle);
-        int cap = Mathf.Max(0, maxCap);
-        return Mathf.Min(cap, baseValue + TotalShuffleBonusEarned);
-    }
-
-    public void AddShuffleBonusForLevel(int levelIndex)
-    {
-        if (levels == null || levels.Length == 0) return;
-        if (levelIndex < 0 || levelIndex >= levels.Length) return;
-
-        int bonus = Mathf.Max(0, levels[levelIndex].manualShuffleBonus);
-        totalShuffleBonusEarned += bonus;
-
-        SaveProgress();
-    }
-
-
+    // =========================
+    // LOAD LEVEL
+    // =========================
     public void LoadStartLevel()
     {
         if (levels == null || levels.Length == 0)
         {
-            Debug.LogError("LevelManager: chưa cấu hình mảng levels!");
+            Debug.LogError("LevelManager: levels array data is null!");
             return;
         }
 
@@ -63,24 +46,17 @@ public class LevelManager : MonoBehaviour
         int clamped = Mathf.Clamp(requested, 0, levels.Length - 1);
         LoadLevel(clamped);
     }
-
-    public void SaveCurrentLevelIndex(int index)
-    {
-        currentLevelIndex = Mathf.Max(0, index);
-        SaveProgress();
-    }
-
     public void LoadLevel(int index)
     {
         if (levels == null || levels.Length == 0)
         {
-            Debug.LogError("LevelManager: chưa cấu hình mảng levels!");
+            Debug.LogError("LevelManager: levels array data is null!");
             return;
         }
 
         if (index < 0 || index >= levels.Length)
         {
-            Debug.LogError($"LevelManager: index level {index} không hợp lệ!");
+            Debug.LogError($"LevelManager: index level {index} is invalid!");
             return;
         }
 
@@ -107,6 +83,24 @@ public class LevelManager : MonoBehaviour
 
         OnLevelLoaded?.Invoke(this, EventArgs.Empty);
     }
+
+    // =========================
+    // PROGRESSION
+    // =========================
+    public void CompleteLevel()
+    {
+        SaveCurrentLevelIndex(currentLevelIndex + 1);
+    }
+
+    public void SaveCurrentLevelIndex(int index)
+    {
+        currentLevelIndex = Mathf.Max(0, index);
+        SaveProgress();
+    }
+
+    // =========================
+    // SAVE / LOAD
+    // =========================
     private void LoadProgress()
     {
         currentLevelIndex = PlayerPrefs.GetInt(CurrentLevelIndexKey, 0);
@@ -120,6 +114,9 @@ public class LevelManager : MonoBehaviour
         PlayerPrefs.Save();
     }
 
+    // =========================
+    // STATIC HELPERS
+    // =========================
     public static void ResetLevelProgress()
     {
         PlayerPrefs.SetInt(CurrentLevelIndexKey, 0);

@@ -42,7 +42,7 @@ public class InGameUI : MonoBehaviour
     {
         if (shuffleText != null)
         {
-            shuffleText.text = $"{GameManager.Instance.ShuffleRemaining}";
+            shuffleText.text = $"{ShuffleManager.Instance.ShuffleRemaining}";
         }
     }
 

@@ -14,6 +14,7 @@ public class GameOverUI : MonoBehaviour
             SceneLoader.LoadScene(SceneLoader.Scene.MainMenuScene);
             ScoreManager.ResetScoreProgress();
             LevelManager.ResetLevelProgress();
+            ShuffleManager.ResetShuffleRemaining();
         });
     }
 

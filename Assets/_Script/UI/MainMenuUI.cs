@@ -12,7 +12,6 @@ public class MainMenuUI : MonoBehaviour
     [SerializeField] private Button continueButton;
     [SerializeField] private TextMeshProUGUI highScoreText;
 
-    public EventHandler OnContinueButtonClicked;
     private void Awake()
     {
         Time.timeScale = 1f; 
@@ -32,7 +31,6 @@ public class MainMenuUI : MonoBehaviour
             SceneLoader.IsContinue = true;
             SceneLoader.RequestedLevelIndex = savedIndex;
             SceneLoader.LoadScene(SceneLoader.Scene.GameScene);
-            OnContinueButtonClicked?.Invoke(this, EventArgs.Empty); 
         });
     }
 
@@ -60,6 +58,7 @@ public class MainMenuUI : MonoBehaviour
     private void UpdateHighScoreText()
     {
         float highScore = ScoreManager.GetHighScoreStatic();
+        Debug.Log("MainMenuUI: High Score" + highScore);
         highScoreText.text = "Điểm cao nhất:\n" + highScore;
     }
 }

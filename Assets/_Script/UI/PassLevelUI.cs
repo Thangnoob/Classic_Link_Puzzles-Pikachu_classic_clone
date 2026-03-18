@@ -30,7 +30,6 @@ public class PassLevelUI : MonoBehaviour
         if (ScoreManager.Instance == null) return;
 
         int match = ScoreManager.Instance.GetMatchScore();
-        Debug.Log("Điểm" + match);
         int shuffle = ScoreManager.Instance.GetShuffleScore();
         int time = ScoreManager.Instance.GetTimeScore();
         int total = ScoreManager.Instance.GetTotalScore();

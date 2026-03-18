@@ -50,30 +50,36 @@ public class ScoreManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
-    /// <summary>Gọi khi bắt đầu màn (LevelManager load xong / GameManager StartLevel).</summary>
+    // =========================
+    // LEVEL LIFECYCLE
+    // =========================
     public void StartLevel(int startingShuffle)
     {
         matchCount = 0;
         shuffleUsedCount = 0;
         levelStartingShuffle = Mathf.Max(0, startingShuffle);
-        lastMatchScore = lastShuffleScore = lastTimeScore = lastTotalScore = 0;
-    }
 
-    /// <summary>Gọi mỗi khi match thành công 1 cặp.</summary>
+        lastMatchScore = 0;
+        lastShuffleScore = 0;
+        lastTimeScore = 0;
+        lastTotalScore = 0;
+    }
+    // =========================
+    // RUNTIME TRACKING
+    // =========================
     public void AddMatch()
     {
         matchCount++;
     }
 
-    /// <summary>Gọi mỗi khi người chơi dùng 1 lần shuffle thủ công.</summary>
     public void AddShuffleUsed()
     {
         shuffleUsedCount++;
     }
 
-    /// <summary>Gọi khi hoàn màn (win). Tính và lưu điểm thành phần + tổng để PassLevelUI lấy.</summary>
-    /// <param name="timeRemainingSeconds">Số giây còn lại khi hoàn màn (từ GameTimerManager.TimeRemaining)</param>
+    // =========================
+    // SCORE CALCULATION
+    // =========================
     public void CompleteLevel(float timeRemainingSeconds)
     {
         lastMatchScore = matchCount * matchPointsPerPair;
@@ -90,37 +96,41 @@ public class ScoreManager : MonoBehaviour
         OnScoreUpdated?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>Lưu tổng điểm hiện tại (khi thua: không cộng điểm level đang chơi).</summary>
     public void SaveTotalScoreWithoutCurrentLevel()
     {
-        PlayerPrefs.SetInt(TotalScoreKey, totalScoreSaved);
+        PlayerPrefs.GetInt(TotalScoreKey, 0);
         PlayerPrefs.Save();
     }
 
-    private void UpdateHighScore(float newScore)
+    // =========================
+    // HIGH SCORE
+    // =========================
+    private void UpdateHighScore(int newScore)
     {
-        float oldScore = PlayerPrefs.GetFloat(HighScoreKey);
+        float oldScore = PlayerPrefs.GetInt(HighScoreKey);
+        Debug.Log("Score Manager: Old score" + oldScore);
         if (oldScore < newScore)
         {
-            PlayerPrefs.SetFloat(HighScoreKey, newScore);
+            PlayerPrefs.SetInt(HighScoreKey, newScore);
             PlayerPrefs.Save();
         }
 
+        float scoreDebug = PlayerPrefs.GetInt(HighScoreKey, 0);
+        Debug.Log("Score Manager: High score" + scoreDebug);
     }
 
-    public int GetSavedTotalScore() => totalScoreSaved;
-
-    /// <summary>Điểm tổng cuối (sau khi gọi CompleteLevel).</summary>
+    // =========================
+    // GETTERS (PERSISTENT)
+    // =========================
     public int GetTotalScore() => lastTotalScore;
-
-    /// <summary>Điểm từ match (số cặp * 100).</summary>
     public int GetMatchScore() => lastMatchScore;
-
-    /// <summary>Điểm từ shuffle (số lần dùng * shufflePointsPerUse).</summary>
     public int GetShuffleScore() => lastShuffleScore;
-
-    /// <summary>Điểm từ thời gian (giây còn lại * 20).</summary>
     public int GetTimeScore() => lastTimeScore;
+
+    // =========================
+    // GETTERS (PERSISTENT)
+    // =========================
+    public int GetSavedTotalScore() => totalScoreSaved;
 
     public static int GetSavedTotalScoreStatic()
     {
@@ -132,9 +142,12 @@ public class ScoreManager : MonoBehaviour
         return PlayerPrefs.GetInt(HighScoreKey, 0);
     }
 
+    // =========================
+    // RESET
+    // =========================
     public static void ResetScoreProgress()
     {
-        PlayerPrefs.SetFloat(TotalScoreKey, 0);
+        PlayerPrefs.SetInt(TotalScoreKey, 0);
         PlayerPrefs.Save();
         Debug.Log("ScoreManager: Điểm tiến trình đã reset!");
     }

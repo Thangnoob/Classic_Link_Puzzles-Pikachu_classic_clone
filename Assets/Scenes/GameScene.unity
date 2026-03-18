@@ -946,9 +946,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   matchPathfinder: {fileID: 943005156}
   pathRenderer: {fileID: 528300989}
-  baseManualShuffle: 3
-  maxManualShuffle: 3
-  manualShuffleCap: 7
 --- !u!1 &443129951
 GameObject:
   m_ObjectHideFlags: 0
@@ -2237,6 +2234,37 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f06ae9798b83e1946ac4a72e346eaa44, type: 2}
   - {fileID: 11400000, guid: 0b03f28166f56c24691dd40f4f39ae98, type: 2}
   startLevelIndex: 0
+--- !u!1 &1113760855
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1113760856}
+  m_Layer: 0
+  m_Name: ShuffleManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1113760856
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1113760855}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2014005006}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1255311667
 GameObject:
   m_ObjectHideFlags: 0
@@ -4545,6 +4573,7 @@ Transform:
   - {fileID: 528300988}
   - {fileID: 1109076831}
   - {fileID: 1776597674}
+  - {fileID: 1113760856}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2017597034

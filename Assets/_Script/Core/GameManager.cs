@@ -18,20 +18,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private MatchPathfinder matchPathfinder;
     [SerializeField] private PathRenderer pathRenderer;
 
-    [Header("Shuffle Settings")]
-    [SerializeField] private int baseManualShuffle = 3;      // base = 3
-
-    [Header("Gameplay Settings (runtime)")]
-    [SerializeField] private int maxManualShuffle = 3;       // base + cumulative bonus theo level
-
-    [SerializeField] private int manualShuffleCap = 7;       // giới hạn tối đa = 7
-
     private Tile firstSelected;
-
-    private int shuffleRemaining;
     private bool isPlaying;
-
-    public int ShuffleRemaining => shuffleRemaining;
 
     private void Awake()
     {
@@ -47,11 +35,6 @@ public class GameManager : MonoBehaviour
             LevelManager.Instance.OnLevelLoaded += LevelManager_OnLevelLoaded;
             LevelManager.Instance.LoadStartLevel();
         }
-        else
-        {
-            Debug.LogWarning("Không tìm thấy LevelManager. Dùng cấu hình mặc định của GameManager.");
-            maxManualShuffle = Mathf.Max(0, baseManualShuffle);
-        }
 
         StartLevel();
     }
@@ -61,34 +44,31 @@ public class GameManager : MonoBehaviour
         if (!isPlaying) return;
     }
 
+    // =========================
+    // LEVEL FLOW
+    // =========================
     private void StartLevel()
     {
         OnGameStart?.Invoke(this, EventArgs.Empty);
-        shuffleRemaining = maxManualShuffle;
         isPlaying = true;
 
         if (ScoreManager.Instance != null)
-            ScoreManager.Instance.StartLevel(maxManualShuffle);
+            ScoreManager.Instance.StartLevel(
+            ShuffleManager.Instance.ShuffleRemaining
+        );
+
+        ShuffleManager.Instance.InitializeIfFirstTime();
     }
 
     private void LevelManager_OnLevelLoaded(object sender, EventArgs e)
     {
-        ApplyLevelConfigForGameplay();
         Time.timeScale = 1f;
         StartLevel();
     }
 
-    private void ApplyLevelConfigForGameplay()
-    {
-        if (LevelManager.Instance == null)
-        {
-            maxManualShuffle = Mathf.Min(Mathf.Max(0, manualShuffleCap), Mathf.Max(0, baseManualShuffle));
-            return;
-        }
-
-        // base + bonus đã kiếm được (chỉ cộng 1 lần khi qua level) và có cap
-        maxManualShuffle = LevelManager.Instance.GetManualShuffleLimit(baseManualShuffle, manualShuffleCap);
-    }
+    // =========================
+    // TIME FLOW
+    // =========================
 
     private void GameTimerManager_OnTimeOver(object sender, System.EventArgs e)
     {
@@ -100,6 +80,9 @@ public class GameManager : MonoBehaviour
             ScoreManager.Instance.SaveTotalScoreWithoutCurrentLevel();
     }
 
+    // =========================
+    // TILE INTERACTION
+    // =========================
     public void OnTileClicked(Tile clicked)
     {
         if (!isPlaying) return;
@@ -109,7 +92,6 @@ public class GameManager : MonoBehaviour
         {
             firstSelected = clicked;
             firstSelected.SetSelected(true);
-            Debug.Log($"Đã chọn tile: {clicked.GridPos}");
             return;
         }
 
@@ -146,10 +128,9 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            OnMatchFailure?.Invoke(this, EventArgs.Empty);
-            Debug.Log("Không nối được");
             // Nếu không nối được thì bỏ chọn tile thứ hai
             clicked.SetSelected(false);
+            OnMatchFailure?.Invoke(this, EventArgs.Empty);
         }
 
         if (firstSelected != null)
@@ -159,18 +140,19 @@ public class GameManager : MonoBehaviour
 
         firstSelected = null;
     }
-    
+
+    // =========================
+    // GAME FLOW
+    // =========================
     private IEnumerator CheckPairAfterGravity()
     {
         yield return null;
-        // Nếu hết cặp → shuffle đảm bảo còn đường
         if (!matchPathfinder.HasAnyValidPair())
         {
-            Debug.Log("Hết cặp → Auto Shuffle...");
+            Debug.Log("Auto Shuffle (no valid pair)");
             GridManager.Instance.ShuffleGrid(true); // ← ensure valid pair
         }
 
-        // Kiểm tra thắng khi không còn tile nào
         if (GridManager.Instance.GetActiveTiles().Count == 0)
         {
             isPlaying = false;
@@ -181,46 +163,36 @@ public class GameManager : MonoBehaviour
             if (ScoreManager.Instance != null && GameTimerManager.Instance != null)
                 ScoreManager.Instance.CompleteLevel(GameTimerManager.Instance.TimeRemaining);
 
-            if (LevelManager.Instance != null)
-            {
-                LevelManager.Instance.AddShuffleBonusForLevel(LevelManager.Instance.CurrentLevelIndex);
-                ApplyLevelConfigForGameplay();
+            ShuffleManager.Instance.AddBonus(
+                LevelManager.Instance.CurrentLevel.manualShuffleBonus
+            );
 
-                // Lưu level tiếp theo để Continue load lại
-                int nextLevel = LevelManager.Instance.CurrentLevelIndex + 1;
-                LevelManager.Instance.SaveCurrentLevelIndex(nextLevel);
-            }
+            LevelManager.Instance?.CompleteLevel();
         }
     }
 
+    // =========================
+    // SHUFFLE
+    // =========================
     public void ManualShuffle()
     {
         if (!isPlaying) return;
-        if (shuffleRemaining <= 0)
+
+        if (!ShuffleManager.Instance.TryUseShuffle())
         {
             Debug.Log("Hết lượt shuffle!");
             return;
         }
 
-        shuffleRemaining--;
-        if (ScoreManager.Instance != null)
-            ScoreManager.Instance.AddShuffleUsed();
+        ScoreManager.Instance?.AddShuffleUsed();
         GridManager.Instance.ShuffleGrid(true);
-        Debug.Log($"Shuffle thủ công, còn lại: {shuffleRemaining}");
+
+        Debug.Log($"Shuffle còn lại: {ShuffleManager.Instance.ShuffleRemaining}");
     }
 
-    private void PauseUnpauseGame()
-    {
-        if (Time.timeScale == 1f)
-        {
-            PauseGame();
-        }
-        else
-        {
-            UnPauseGame();
-        }
-    }
-
+    // =========================
+    // PAUSE SYSTEM
+    // =========================
     public void PauseGame()
     {
         Time.timeScale = 0f;

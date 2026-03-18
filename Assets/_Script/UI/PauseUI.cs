@@ -43,12 +43,13 @@ public class PauseUI : MonoBehaviour
         sfxButtonText.text = SoundManager.Instance.GetSoundVolume() == 0 ? "Off" : SoundManager.Instance.GetSoundVolume().ToString();
         musicButtonText.text = MusicManager.Instance.GetMusicVolume() == 0 ? "Off" : MusicManager.Instance.GetMusicVolume().ToString();
         ScoreManager.Instance.OnScoreUpdated += ScoreManager_OnScoreUpdated;
+        UpdateTotalScoreProgressText();
         Hide();
     }
 
     private void ScoreManager_OnScoreUpdated(object sender, EventArgs e)
     {
-        totalScoreProgressText.text = "Điểm hiện tại:\n" + ScoreManager.GetSavedTotalScoreStatic().ToString();
+        UpdateTotalScoreProgressText();
     }
 
     private void GameManager_OnGamePaused(object sender, EventArgs e)
@@ -69,5 +70,10 @@ public class PauseUI : MonoBehaviour
     private void Hide()
     {
         gameObject.SetActive(false);
+    }
+
+    private void UpdateTotalScoreProgressText()
+    {
+        totalScoreProgressText.text = "Điểm hiện tại:\n" + ScoreManager.GetSavedTotalScoreStatic().ToString();
     }
 }
