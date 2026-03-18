@@ -22,9 +22,8 @@ public class ShuffleManager : MonoBehaviour
     // =========================
     // INIT GAME
     // =========================
-    public void InitializeIfFirstTime()
-    {
-        if (!PlayerPrefs.HasKey(ShuffleRemainingKey))
+    public void Initialize()
+    {   if (!PlayerPrefs.HasKey(ShuffleRemainingKey))
         {
             shuffleRemaining = START_SHUFFLE;
             Save();
@@ -75,7 +74,7 @@ public class ShuffleManager : MonoBehaviour
     //==========================
     public static void ResetShuffleRemaining()
     {
-        PlayerPrefs.SetInt(ShuffleRemainingKey, 0);
+        PlayerPrefs.SetInt(ShuffleRemainingKey, 3);
         PlayerPrefs.Save();
     }
 }

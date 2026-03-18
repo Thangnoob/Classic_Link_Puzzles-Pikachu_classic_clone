@@ -57,7 +57,7 @@ public class GameManager : MonoBehaviour
             ShuffleManager.Instance.ShuffleRemaining
         );
 
-        ShuffleManager.Instance.InitializeIfFirstTime();
+        ShuffleManager.Instance.Initialize();
     }
 
     private void LevelManager_OnLevelLoaded(object sender, EventArgs e)

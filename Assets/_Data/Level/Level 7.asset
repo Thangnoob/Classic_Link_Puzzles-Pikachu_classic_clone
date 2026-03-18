@@ -12,10 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d06d56483a6bc44e9fe4479ccd2ced3, type: 3}
   m_Name: Level 7
   m_EditorClassIdentifier: 
-  cols: 4
-  rows: 4
+  cols: 16
+  rows: 9
   levelDuration: 420
-  manualShuffleBonus: 2
+  manualShuffleBonus: 0
   timeBonusPerMatch: 2
   timeBounusCombo: 8
   backgroundSprite: {fileID: 21300000, guid: cdc17d4d53de56841ba33a67763ef19b, type: 3}

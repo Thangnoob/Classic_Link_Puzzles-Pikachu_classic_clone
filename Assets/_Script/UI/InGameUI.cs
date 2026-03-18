@@ -13,7 +13,13 @@ public class InGameUI : MonoBehaviour
 
     private void Awake()
     {
-        shuffleButton.onClick.AddListener(OnShuffleButtonClicked);
+        shuffleButton.onClick.AddListener(() =>
+        {
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.ManualShuffle();
+            }
+        });
         pauseButton.onClick.AddListener(() => {
             GameManager.Instance.PauseGame();
         });
@@ -43,15 +49,6 @@ public class InGameUI : MonoBehaviour
         if (shuffleText != null)
         {
             shuffleText.text = $"{ShuffleManager.Instance.ShuffleRemaining}";
-        }
-    }
-
-    // Gọi hàm này từ Button OnClick trong Unity
-    public void OnShuffleButtonClicked()
-    {
-        if (GameManager.Instance != null)
-        {
-            GameManager.Instance.ManualShuffle();
         }
     }
 
