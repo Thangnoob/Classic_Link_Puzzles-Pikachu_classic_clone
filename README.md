@@ -1,4 +1,4 @@
-## PROJECT NAME: PIKACHU CLASSIC — A classic 2D tile-matching puzzle game (Onet-style)
+## PROJECT NAME: CLASSIC LINK PUZZLES (PIKACHU CLASSIC 2003 CLONE)— A classic 2D tile-matching puzzle game (Onet-style)
 
 Match identical tiles that can be connected with a path of up to two turns, clear the board under time pressure, and use shuffles when you get stuck.
 
