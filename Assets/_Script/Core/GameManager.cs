@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -74,12 +75,14 @@ public class GameManager : MonoBehaviour
     {
         isPlaying = false;
         Debug.Log("Hết thời gian!");
-        // Tùy bạn xử lý: hiện popup thua, dừng input, v.v.
 
         if (ScoreManager.Instance != null)
-            ScoreManager.Instance.SaveTotalScoreWithoutCurrentLevel();
-    }
+        {
+            ScoreManager.Instance.CheckHighScoreOnGameOver();
+        }
 
+        SceneLoader.LoadScene(SceneLoader.Scene.GameOverScene);
+    }
     // =========================
     // TILE INTERACTION
     // =========================

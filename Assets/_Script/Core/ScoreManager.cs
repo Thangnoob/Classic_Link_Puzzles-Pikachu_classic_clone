@@ -80,6 +80,12 @@ public class ScoreManager : MonoBehaviour
     // =========================
     // SCORE CALCULATION
     // =========================
+    public void CheckHighScoreOnGameOver()
+    {
+        int currentSavedScore = PlayerPrefs.GetInt(TotalScoreKey, 0);
+
+        UpdateHighScore(currentSavedScore);
+    }
     public void CompleteLevel(float timeRemainingSeconds)
     {
         lastMatchScore = matchCount * matchPointsPerPair;
@@ -94,12 +100,6 @@ public class ScoreManager : MonoBehaviour
         PlayerPrefs.Save();
 
         OnScoreUpdated?.Invoke(this, EventArgs.Empty);
-    }
-
-    public void SaveTotalScoreWithoutCurrentLevel()
-    {
-        PlayerPrefs.GetInt(TotalScoreKey, 0);
-        PlayerPrefs.Save();
     }
 
     // =========================

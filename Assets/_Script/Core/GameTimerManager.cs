@@ -49,6 +49,7 @@ public class GameTimerManager : MonoBehaviour
             {
                 timeRemaining += timeBonusCombo;
             }
+            timeRemaining += timeBonus;
             comboCount++;
         }
         else
