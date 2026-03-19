@@ -1,9 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Tile : MonoBehaviour
+public class Tile : MonoBehaviour, IPointerDownHandler
 {
     private int type; //ID type of image (0-71 for 72 images)
     private SpriteRenderer spriteRenderer;
@@ -39,9 +39,12 @@ public class Tile : MonoBehaviour
     public Vector2Int GridPos => gridPos;
     public int Type => type;
 
-    private void OnMouseDown()
+    public void OnPointerDown(PointerEventData eventData)
     {
-        GameManager.Instance.OnTileClicked(this);
-        Debug.Log($"Tile clicked at grid position: {gridPos}, type: {type}");   
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.OnTileClicked(this);
+            Debug.Log($"Tile clicked via Pointer at: {gridPos}, type: {type}");
+        }
     }
 }

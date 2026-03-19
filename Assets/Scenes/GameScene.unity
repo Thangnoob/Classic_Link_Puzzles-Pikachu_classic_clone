@@ -3249,7 +3249,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "M\xE0n 1/7"
+  m_text: "M\xE0n \n1/7"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 4311b53d3f4458d4f9a6e50c83d5ffc1, type: 2}
   m_sharedMaterial: {fileID: 6548058428511264785, guid: 4311b53d3f4458d4f9a6e50c83d5ffc1, type: 2}
