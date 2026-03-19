@@ -60,6 +60,6 @@ public class InGameUI : MonoBehaviour
     private void UpdateTotalScoreProgressLabel()
     {
         int currentLevel = LevelManager.Instance.CurrentLevelIndex + 1;
-        currentLevelText.text = "Màn \n" + currentLevel.ToString() + "/7";
+        currentLevelText.text = "Màn " + currentLevel.ToString() + "/7";
     }
 }
